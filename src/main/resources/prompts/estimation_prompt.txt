@@ -21,6 +21,3 @@ RULES:
 
 BRD:
 {{BRD}}
-
-Feedback:
-{{FEEDBACK}}

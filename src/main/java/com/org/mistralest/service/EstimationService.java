@@ -32,12 +32,12 @@ public class EstimationService {
         this.mapper = mapper;
     }
 
-    public EstimationResponse generateEstimation(MultipartFile file, String feedback) throws Exception {
+    public EstimationResponse generateEstimation(MultipartFile file) throws Exception {
         String brd = DocumentTextExtractor.extractText(file);
-        return generate(brd, feedback);
+        return generate(brd);
     }
 
-    private String buildPrompt(String brd, String feedback) {
+    private String buildPrompt(String brd) {
         try {
             String template = new String(
                     promptResource.getInputStream().readAllBytes(),
@@ -45,18 +45,17 @@ public class EstimationService {
             );
 
             return template
-                    .replace("{{BRD}}", brd)
-                    .replace("{{FEEDBACK}}", feedback == null ? "None" : feedback);
+                    .replace("{{BRD}}", brd);
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to load prompt template", e);
         }
     }
 
-    public EstimationResponse generate(String brd, String feedback) throws Exception {
+    public EstimationResponse generate(String brd) throws Exception {
         try {
 
-            String prompt = buildPrompt(brd, feedback);
+            String prompt = buildPrompt(brd);
             String response = chatClient.prompt().user(prompt).call().content();
             log.info("AI Raw Output:\n{}", response);
 
