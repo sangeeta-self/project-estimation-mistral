@@ -10,9 +10,9 @@ import java.nio.file.Path;
 
 public class FileUtil {
 
-    public static File saveMultipartFile(MultipartFile file, String uploadDir, String docId) throws Exception {
+    public static File saveMultipartFile(MultipartFile file, String uploadDir, String docId, String methodology) throws Exception {
         File dir = new File(uploadDir);
-         if (!dir.exists()) {
+        if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 throw new IOException("Failed to create directory: " + uploadDir);
             }
@@ -21,8 +21,14 @@ public class FileUtil {
             throw new IOException("Upload path is not a directory: " + uploadDir);
         }
         String original = file.getOriginalFilename();
-        String fileNme = getFileName(original == null ? "file" : original);
-        File saved = Path.of(uploadDir, docId + "_" + fileNme).toFile();
+        String name = getFileName(original == null ? "file" : original);
+        // sanitize methodology
+        String methodPart = (methodology == null || methodology.isBlank())
+                ? "unknown"
+                : methodology.toLowerCase().replaceAll("[^a-zA-Z0-9]", "_");
+        // final filename
+        String finalName = docId + "_" + methodPart + "_" + name;
+        File saved = Path.of(uploadDir, docId + "_" + finalName).toFile();
 
         FileUtils.copyInputStreamToFile(file.getInputStream(), saved);
         return saved;
@@ -33,8 +39,5 @@ public class FileUtil {
     }
 
 
-    private static String safeString(String s) {
-        return s == null ? "" : s.trim();
-    }
 
 }
